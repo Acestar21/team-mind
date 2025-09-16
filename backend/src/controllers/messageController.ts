@@ -1,6 +1,5 @@
 import message from "../models/message.js";
 import {type Request , type Response} from "express";
-import express from "express";
 
 export const createMessages = async (req: Request, res: Response) => {
     try {
