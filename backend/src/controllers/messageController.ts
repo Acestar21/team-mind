@@ -3,8 +3,10 @@ import {type Request , type Response} from "express";
 
 export const createMessages = async (req: Request, res: Response) => {
     try {
-        const {text , sender ,user} = req.body;
-        const newMessage = new message({text,sender,user});
+        const { text, sender } = req.body;
+        const userId = (req as any).userId;
+
+        const newMessage = new message({ text, sender, user: userId });
         await newMessage.save();
         res.status(201).json(newMessage);
     } catch (error) {
