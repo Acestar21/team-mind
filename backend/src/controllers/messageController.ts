@@ -3,8 +3,8 @@ import {type Request , type Response} from "express";
 
 export const createMessages = async (req: Request, res: Response) => {
     try {
-        const {text , sender} = req.body;
-        const newMessage = new message({text,sender});
+        const {text , sender ,user} = req.body;
+        const newMessage = new message({text,sender,user});
         await newMessage.save();
         res.status(201).json(newMessage);
     } catch (error) {
@@ -15,7 +15,7 @@ export const createMessages = async (req: Request, res: Response) => {
 
 export const getMessages = async (req: Request, res: Response) => {
     try {
-        const messages = await message.find().sort({createdAt: -1});    
+        const messages = await message.find().populate("user","username email").sort({createdAt: -1});    
         res.status(200).json(messages);
     } catch (error) {
         res.status(500).json({error: "Failed to fetch messages"});
