@@ -28,10 +28,16 @@ export const getMessages = async (req: Request, res: Response) => {
 export const deleteMessages = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
-        const deleteMessages = await message.findByIdAndDelete(id);
+        const userId = (req as any).userId;
+        
+        const deleteMessages = await message.findById(id);
         if (!deleteMessages) {
             return res.status(404).json({ error: "Message not found" });
         }
+        if (deleteMessages.user.toString() !== userId) {
+            return res.status(403).json({ error: "Not authorized to delete this message" });
+        }
+        await deleteMessages.deleteOne();
         res.status(200).json({ message: "Message deleted successfully" });
     } catch (error) {
         res.status(500).json({ error: "Failed to delete message" });
@@ -43,18 +49,22 @@ export const updateMessage = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
         const { text } = req.body;
+        const userId = (req as any).userId; // from JWT middleware
 
-        const updatedMessage = await message.findByIdAndUpdate(
-            id,
-            { text },
-            { new: true } // returns updated doc
-        );
-
-        if (!updatedMessage) {
+        const msg = await message.findById(id);
+        if (!msg) {
             return res.status(404).json({ error: "Message not found" });
         }
 
-        res.status(200).json(updatedMessage);
+        // Ownership check
+        if (msg.user.toString() !== userId) {
+            return res.status(403).json({ error: "Not authorized to update this message" });
+        }
+
+        msg.text = text;
+        await msg.save();
+
+        res.status(200).json(msg);
     } catch (error) {
         res.status(500).json({ error: "Failed to update message" });
         console.log(error);
