@@ -7,8 +7,9 @@ export const createMessages = async (req: Request, res: Response) => {
         const { text, sender } = req.body;
         const userId = (req as any).userId;
 
-        const newMessage = new message({ text, sender, user: userId });
+        let newMessage = new message({ text, sender, user: userId });
         await newMessage.save();
+        newMessage = await newMessage.populate("user", "username email");
         io.emit("newMessage", newMessage);
 
         res.status(201).json(newMessage);
