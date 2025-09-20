@@ -1,5 +1,6 @@
 import message from "../models/message.js";
 import {type Request , type Response} from "express";
+import { io } from "../index.js"
 
 export const createMessages = async (req: Request, res: Response) => {
     try {
@@ -8,6 +9,8 @@ export const createMessages = async (req: Request, res: Response) => {
 
         const newMessage = new message({ text, sender, user: userId });
         await newMessage.save();
+        io.emit("newMessage", newMessage);
+
         res.status(201).json(newMessage);
     } catch (error) {
         res.status(500).json({error: "Failed to create message"});
@@ -38,6 +41,7 @@ export const deleteMessages = async (req: Request, res: Response) => {
             return res.status(403).json({ error: "Not authorized to delete this message" });
         }
         await deleteMessages.deleteOne();
+        io.emit("deleteMessage", id);
         res.status(200).json({ message: "Message deleted successfully" });
     } catch (error) {
         res.status(500).json({ error: "Failed to delete message" });
@@ -63,6 +67,7 @@ export const updateMessage = async (req: Request, res: Response) => {
 
         msg.text = text;
         await msg.save();
+        io.emit("updateMessage", msg);
 
         res.status(200).json(msg);
     } catch (error) {
