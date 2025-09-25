@@ -8,8 +8,6 @@ const getAuthHeader = () => {
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
-// Fetch all messages
-// fetch all messages
 export const fetchMessages = async () => {
   try {
     const token = localStorage.getItem("token");

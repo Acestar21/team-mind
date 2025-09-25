@@ -1,16 +1,19 @@
 import { useState } from "react";
 import { loginUser } from "../services/api";
 
-export default function Login() {
+type LoginProps = {
+  onLoginSuccess: () => void;
+  onShowRegister: () => void;
+}
+export default function Login({onLoginSuccess, onShowRegister}: LoginProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    setSuccess("");
 
     const data = await loginUser(email, password);
     if (!data) {
@@ -21,7 +24,8 @@ export default function Login() {
     // Save JWT
     localStorage.setItem("token", data.token);
 
-    setSuccess(`Welcome, ${data.user.username}`);
+    localStorage.setItem("user", JSON.stringify(data.user));
+    onLoginSuccess();
   };
 
   return (
@@ -46,7 +50,12 @@ export default function Login() {
       </form>
 
       {error && <p style={{ color: "red" }}>{error}</p>}
-      {success && <p style={{ color: "green" }}>{success}</p>}
+      <p>
+        Don't have an account?{' '}
+        <button onClick={onShowRegister} style={{ border: 'none', background: 'none', color: 'blue', cursor: 'pointer', padding: 0 }}>
+          Register
+        </button>
+      </p>
     </div>
   );
 }
