@@ -7,11 +7,11 @@ type Props = {
   setMessages: React.Dispatch<React.SetStateAction<any[]>>
 };
 
-const MessageInput = ({ setMessages }: Props) => {
+const MessageInput = ({ /*setMessages*/ }: Props) => {
   const [text, setText] = useState("");
 
   const handleSend = async () => {
-    const res = await createMessage(text);
+    await createMessage(text);
     // if (res) setMessages(prev => [...prev, res]);
     setText("");
   };

@@ -1,0 +1,30 @@
+/* src/index.css */
+
+/* --- Add these styles to the end of your file --- */
+
+.message-container {
+    display: flex;
+    margin-bottom: 10px;
+    /* By default, messages align to the left */
+    justify-content: flex-end
+}
+
+.message-container.current-user {
+    /* This overrides the default and aligns the user's own messages to the right */
+    justify-content: flex-start;
+}
+
+.message-bubble {
+    max-width: 60%;
+    padding: 10px 15px;
+    border-radius: 15px;
+    background-color: #88a3e6;
+    overflow-wrap: break-word;
+    word-break: break-all;
+    /** Default background for other users' messages */
+}
+
+.message-bubble.current-user {
+    /* A different background color for the user's own messages */
+    background-color: #afbb60;
+}

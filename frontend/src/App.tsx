@@ -5,7 +5,7 @@ import ChatWindow from "./components/ChatWindow";
 import Sidebar from "./components/Sidebar";
 
 interface User {
-  _id: string;
+  id: string;
   username: string;
   email: string;
 }
@@ -51,7 +51,7 @@ function App() {
     <div className="ChatWindowPage">
       <div style={{ display: 'flex', height: '100vh' }}>
       <Sidebar onLogout={handleLogout} user={user} />
-      <ChatWindow />   {/* <-- this is where messages + input live */}
+      <ChatWindow user={user} />   {/* <-- this is where messages + input live */}
       </div>
     </div>
   );

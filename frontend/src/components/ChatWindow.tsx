@@ -3,11 +3,21 @@ import { fetchMessages } from '../services/api';
 import { socket } from "../socket";
 import MessageItem from './MessageItem';
 import MessageInput from './MessageInput';
+interface User {
+  id: string;
+  username: string;
+  email: string;
+}
 
-const ChatWindow = () => {
+type ChatWindowProps = {
+    user: User | null;
+};
+
+
+const ChatWindow = ({user}:ChatWindowProps) => {
     const [messages , setMessages] = useState<any[]>([]);
-   const messagesEndRef = useRef<HTMLDivElement>(null); 
-   
+    const messagesEndRef = useRef<HTMLDivElement>(null); 
+
    useEffect(() => {
        fetchMessages().then(res => {
            if (res && Array.isArray(res)){
@@ -43,7 +53,10 @@ const ChatWindow = () => {
             
 
             <div style={{ flex: 1, overflowY: 'auto', padding: '1rem' }}>
-                {messages.map(msg => <MessageItem key={msg._id} message={msg} />)}
+                {messages.map(msg => 
+                    <MessageItem key={msg._id} 
+                    message={msg}
+                    current_user = {user} />)}
                 <div ref={messagesEndRef} />
             </div>
 
