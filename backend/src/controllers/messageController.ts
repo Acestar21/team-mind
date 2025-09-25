@@ -68,7 +68,12 @@ export const updateMessage = async (req: Request, res: Response) => {
 
         msg.text = text;
         await msg.save();
-        io.emit("updateMessage", msg);
+        const populatedMessage = await msg.populate("user", "username email");
+    // --- END OF FIX ---
+
+    // Now, emit and respond with the fully populated message
+        io.emit("updateMessage", populatedMessage);
+        res.status(200).json(populatedMessage);
 
         res.status(200).json(msg);
     } catch (error) {

@@ -7,6 +7,6 @@ const router = Router();
 router.post("/", authMiddleware, createMessages);
 router.get("/", authMiddleware, getMessages);
 router.delete("/:id",authMiddleware, deleteMessages);
-router.put("/:id", authMiddleware, updateMessage);
+router.patch("/:id", authMiddleware, updateMessage);
 
 export default router;

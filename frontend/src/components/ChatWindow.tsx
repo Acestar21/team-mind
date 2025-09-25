@@ -1,5 +1,5 @@
 import { useEffect, useState , useRef } from 'react';
-import { fetchMessages } from '../services/api';
+import { fetchMessages, deleteMessage, updateMessage } from '../services/api';
 import { socket } from "../socket";
 import MessageItem from './MessageItem';
 import MessageInput from './MessageInput';
@@ -38,14 +38,23 @@ const ChatWindow = ({user}:ChatWindowProps) => {
     useEffect(() => {
             messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages]);
-    const handleDelete = (id: number) => {
-    setMessages(prev => prev.filter(msg => msg._id !== id));
+    const handleDeleteMessage = async (messageId: string) => {
+        // Call the API to delete from the database
+        const success = await deleteMessage(messageId);
+        if (success) {
+        // If the API call works, remove the message from our local state
+        setMessages(prev => prev.filter(msg => msg._id !== messageId));
+        }
     };
-    
-    const handleUpdate = (id: number, newText: string) => {
-    setMessages(prev =>
-      prev.map(msg => (msg._id === id ? { ...msg, text: newText } : msg))
-    );
+    const handleUpdateMessage = async (messageId: string, newText: string) => {
+        // Call the API to update the message in the database
+        const updatedMessage = await updateMessage(messageId, newText);
+        if (updatedMessage) {
+        // If the API call works, update the message in our local state
+        setMessages(prev =>
+            prev.map(msg => (msg._id === messageId ? updatedMessage : msg))
+        );
+        }
     };
     
     return (
@@ -54,9 +63,14 @@ const ChatWindow = ({user}:ChatWindowProps) => {
 
             <div style={{ flex: 1, overflowY: 'auto', padding: '1rem' }}>
                 {messages.map(msg => 
-                    <MessageItem key={msg._id} 
-                    message={msg}
-                    current_user = {user} />)}
+                     <MessageItem 
+                        key={msg._id} 
+                        message={msg}
+                        current_user={user} // Corrected prop name
+                        onDelete={handleDeleteMessage} // Pass the delete function
+                        onUpdate={handleUpdateMessage} // Pass the update function
+                    />
+                )}
                 <div ref={messagesEndRef} />
             </div>
 
