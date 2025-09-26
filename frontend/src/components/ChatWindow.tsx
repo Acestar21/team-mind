@@ -3,6 +3,7 @@ import { fetchMessages, deleteMessage, updateMessage } from '../services/api';
 import { socket } from "../socket";
 import MessageItem from './MessageItem';
 import MessageInput from './MessageInput';
+import ModelSelector from './ModelSelector';
 interface User {
   id: string;
   username: string;
@@ -16,6 +17,7 @@ type ChatWindowProps = {
 
 const ChatWindow = ({user}:ChatWindowProps) => {
     const [messages , setMessages] = useState<any[]>([]);
+    const [selectedModel, setSelectedModel] = useState("gemini");
     const messagesEndRef = useRef<HTMLDivElement>(null); 
 
    useEffect(() => {
@@ -59,7 +61,7 @@ const ChatWindow = ({user}:ChatWindowProps) => {
     
     return (
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100vh', background: '#b2b4b9ff' }}>
-            
+            <ModelSelector selectedModel={selectedModel} setSelectedModel={setSelectedModel} />'
 
             <div style={{ flex: 1, overflowY: 'auto', padding: '1rem' }}>
                 {messages.map(msg => 
@@ -75,7 +77,7 @@ const ChatWindow = ({user}:ChatWindowProps) => {
             </div>
 
             <div style={{ padding: '1rem', background: '#6a6565ff',display: 'flex' }}>
-            <MessageInput setMessages={setMessages} />
+            <MessageInput setMessages={setMessages} selectedModel = {selectedModel} />
             </div>
         </div>
     );
