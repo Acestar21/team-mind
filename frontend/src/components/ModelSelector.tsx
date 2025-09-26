@@ -12,8 +12,8 @@ const ModelSelector = ({selectedModel, setSelectedModel}: ModelProps) => {
     return (
         <div>
             <label htmlFor="model-select">
-                AI Model :    
-            </label>"
+                AI Model :  
+            </label>
             <select 
                 id = "model-select"
                 value = {selectedModel}
