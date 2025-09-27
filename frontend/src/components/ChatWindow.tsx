@@ -1,9 +1,10 @@
-import { useEffect, useState , useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { fetchMessages, deleteMessage, updateMessage } from '../services/api';
 import { socket } from "../socket";
 import MessageItem from './MessageItem';
 import MessageInput from './MessageInput';
 import ModelSelector from './ModelSelector';
+
 interface User { 
   id: string;
   username: string;
@@ -14,89 +15,90 @@ type ChatWindowProps = {
     user: User | null;
 };
 
-
-const ChatWindow = ({user}:ChatWindowProps) => {
-
-    const [messages , setMessages] = useState<any[]>([]);
+const ChatWindow = ({ user }: ChatWindowProps) => {
+    const [messages, setMessages] = useState<any[]>([]);
     const [selectedModel, setSelectedModel] = useState("gemini");
     const messagesEndRef = useRef<HTMLDivElement>(null); 
 
-   useEffect(() => {
-       fetchMessages().then(res => {
-            if (res && Array.isArray(res)){
+    useEffect(() => {
+        fetchMessages().then(res => {
+            if (res && Array.isArray(res)) {
                 const sortedMessages = res.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
                 setMessages(sortedMessages);
+            } else {
+                setMessages([]);
             }
-            else setMessages([]);
         });
         
-        socket.on("newMessage", (msg) => {
+        socket.on("newMessage", (newMessage) => {
+            if (newMessage.tempId) {
+                setMessages(prev => 
+                    prev.map(msg => 
+                        msg._id === newMessage.tempId ? newMessage : msg
+                    )
+                );
+            } else {
+                setMessages(prev => [...prev, newMessage]);
+            }
+        });
+
+
+        socket.on("messageDeleted", (data) => {
             setMessages(prev => 
-                [...prev , msg]
+                prev.filter(msg => msg._id !== data._id)
             );
         });
 
-        socket.on("deleteMessage", (data) => {
-            setMessages(prev => 
-                prev.filter(msg => msg._id !== data)
-            );
-        });
-
-        socket.on("updateMessage", (updatedMessage) => {
+        socket.on("messageUpdated", (updatedMessage) => {
             setMessages(prev => 
                 prev.map(msg => msg._id === updatedMessage._id ? updatedMessage : msg)
             );
         });
         
-        
+ 
         return () => {
             socket.off("newMessage");
-            socket.off("messageDeleted"); // Clean up the new listeners
+            socket.off("messageDeleted");
             socket.off("messageUpdated");
         };
-
     }, []);
 
     useEffect(() => {
-            messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages]);
 
-    const handleDeleteMessage = async (messageId: string) => {
-        const success = await deleteMessage(messageId);
-        if (success) {
-        setMessages(prev => prev.filter(msg => msg._id !== messageId));
-        }
-    };
 
+    const handleDeleteMessage = async (messageId: string) => {
+        await deleteMessage(messageId);
+    };
+    
     const handleUpdateMessage = async (messageId: string, newText: string) => {
-        const updatedMessage = await updateMessage(messageId, newText);
-        if (updatedMessage) {
-            setMessages(prev =>
-                prev.map(msg => 
-                    (msg._id === messageId ? updatedMessage : msg)
-                )
-            );
-        }
+        await updateMessage(messageId, newText);
     };
     
     return (
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100vh', background: '#b2b4b9ff' }}>
-            <ModelSelector selectedModel={selectedModel} setSelectedModel={setSelectedModel} />'
+            <ModelSelector selectedModel={selectedModel} setSelectedModel={setSelectedModel} />
 
-                <div style={{ flex: 1, overflowY: 'auto', padding: '1rem' }}>
-                    {messages.map(msg => 
-                        <MessageItem 
-                            key={msg._id} 
-                            message={msg}
-                            current_user={user} // Corrected prop name
-                            onDelete={handleDeleteMessage} // Pass the delete function
-                            onUpdate={handleUpdateMessage} // Pass the update function
-                        />
-                    )}
+            <div style={{ flex: 1, overflowY: 'auto', padding: '1rem' }}>
+                {messages.map(msg => 
+                    <MessageItem 
+                        key={msg._id} 
+                        message={msg}
+                        current_user={user} 
+                        onDelete={handleDeleteMessage}
+                        onUpdate={handleUpdateMessage}
+                    />
+                )}
                 <div ref={messagesEndRef} />
-        </div>
-            <div style={{ padding: '1rem', background: '#6a6565ff',display: 'flex' }}>
-                <MessageInput setMessages={setMessages} selectedModel = {selectedModel} />
+            </div>
+            
+            <div style={{ padding: '1rem', background: '#6a6565ff', display: 'flex' }}>
+                <MessageInput 
+                    setMessages={setMessages} 
+                    selectedModel={selectedModel} 
+                    current_user={user}
+                />
             </div>
         </div>
     );

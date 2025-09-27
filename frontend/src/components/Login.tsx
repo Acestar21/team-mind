@@ -21,7 +21,6 @@ export default function Login({onLoginSuccess, onShowRegister}: LoginProps) {
       return;
     }
 
-    // Save JWT
     localStorage.setItem("token", data.token);
 
     localStorage.setItem("user", JSON.stringify(data.user));

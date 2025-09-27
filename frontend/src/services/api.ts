@@ -2,7 +2,7 @@ import axios from "axios";
 
 const BASE_URL = "http://localhost:5000/api/messages";
 
-// Get token from localStorage
+
 const getAuthHeader = () => {
   const token = localStorage.getItem("token");
   return token ? { Authorization: `Bearer ${token}` } : {};
@@ -24,7 +24,7 @@ export const fetchMessages = async () => {
   }
 };
 
-// Create a new message
+
 export const createMessage = async (text: string) => {
   try {
     const token = localStorage.getItem("token");
@@ -41,7 +41,7 @@ export const createMessage = async (text: string) => {
 };
 
 
-// Update a message
+
 export const updateMessage = async (id: string, text: string) => {
   try {
     const response = await axios.patch(`${BASE_URL}/${id}`, { text }, { headers: getAuthHeader() });
@@ -52,7 +52,6 @@ export const updateMessage = async (id: string, text: string) => {
   }
 };
 
-// Delete a message
 export const deleteMessage = async (id: string) => {
   try {
     const response = await axios.delete(`${BASE_URL}/${id}`, { headers: getAuthHeader() });
@@ -65,18 +64,18 @@ export const deleteMessage = async (id: string) => {
 
 const AUTH_URL = "http://localhost:5000/api/auth";
 
-// Login user
+
 export const loginUser = async (email: string, password: string) => {
   try {
     const response = await axios.post(`${AUTH_URL}/login`, { email, password });
-    return response.data; // { token, user }
+    return response.data;
   } catch (error) {
     console.error("Error logging in:", error);
     return null;
   }
 };
 
-// Register user (optional)
+
 export const registerUser = async (username: string, email: string, password: string) => {
   try {
     const response = await axios.post(`${AUTH_URL}/register`, { username, email, password });

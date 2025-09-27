@@ -16,7 +16,7 @@ const server = http.createServer(app)
 const PORT = 5000;
 const io = new Server(server, {
   cors: {
-    origin: "*", // later: restrict to frontend URL
+    origin: "*",
     methods: ["GET", "POST"]
   }
 });
@@ -33,7 +33,7 @@ app.use("/api/auth", authRoutes);
 app.get("/", (req, res) => {
     res.send("Hello World! This is your backend server.");
 });
-// Helper function to call the Ollama API
+
 async function getOllamaResponse(prompt: string, modelName: string) {
   try {
     const response = await axios.post('http://localhost:11434/api/chat', {
@@ -67,34 +67,51 @@ async function getGeminiResponse(prompt: string) {
 io.on("connection", (socket) => {
   console.log("⚡ New user connected:", socket.id);
 
-  socket.on("getAiResponse", async ({ prompt, model }) => {
+ socket.on("getAiResponse", async ({ prompt, model, tempId }) => {
+
+    let aiResponseText;
+    if (model === 'gemini') {
+      aiResponseText = await getGeminiResponse(prompt);
+    } else {
+      aiResponseText = await getOllamaResponse(prompt, model);
+    }
+    if (aiResponseText) {
+      const aiMessage = {
+        _id: new mongoose.Types.ObjectId(),
+        text: aiResponseText,
+        user: {
+                _id: `ai-bot-${model}`, 
+                username: `AI Bot (${model})`
+              },
+        createdAt: new Date(),
+        tempId: tempId, 
+      };
+      io.emit("newMessage", aiMessage);
+    }
+});
+   socket.on("getAiResponse", async ({ prompt, model, tempId }) => {
     console.log(`🤖 Received AI prompt for model: ${model} | Prompt: "${prompt}"`);
     
     let aiResponseText;
 
     if (model === 'gemini') {
-      // We'll add the logic for Gemini later
-        aiResponseText = await getGeminiResponse(prompt);
-
+      aiResponseText = await getGeminiResponse(prompt);
     } else {
-      // For any other model (e.g., 'llama3', 'mistral'), call Ollama
       aiResponseText = await getOllamaResponse(prompt, model);
     }
     
-    // Format the response to look like a standard message object
     if (aiResponseText) {
       const aiMessage = {
         _id: new mongoose.Types.ObjectId(),
         text: aiResponseText,
         user: { 
-          // Use a special ID for the bot to ensure it's never the "current user"
           _id: `ai-bot-${model}`, 
           username: `AI Bot (${model})` 
         },
         createdAt: new Date(),
+        tempId: tempId, 
       };
       
-      // Emit the AI's response using the same event as regular messages
       io.emit("newMessage", aiMessage);
     }
   });
@@ -110,4 +127,4 @@ connectDB().then(() => {
   });
 });
 
-export { io }; // Removed to prevent circular definition error
+export { io }; 
