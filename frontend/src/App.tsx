@@ -5,7 +5,7 @@ import ChatWindow from "./components/ChatWindow";
 import Sidebar from "./components/Sidebar";
 
 interface User {
-  _id: string;
+  id: string;
   username: string;
   email: string;
 }

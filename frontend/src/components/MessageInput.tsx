@@ -1,8 +1,9 @@
 import React, { useState } from "react";
+import { createMessage } from "../services/api";
 import { socket } from "../socket";
 
-interface User { 
-  _id: string;
+interface User {
+  id: string;
   username: string;
   email: string;
 }
@@ -17,55 +18,52 @@ const MessageInput = ({ setMessages, selectedModel, current_user }: Props) => {
   const [text, setText] = useState("");
 
   const handleSend = async () => {
-    if (!text.trim()) return;
+    if (!text.trim() || !current_user) return;
 
-    if (text.startsWith('/ai ')) {
+    // AI message
+    if (text.startsWith("/ai ")) {
       const prompt = text.substring(4);
       const tempId = `temp-${Date.now()}`;
       const thinkingMessage = {
         _id: tempId,
         text: "AI is thinking...",
-        user: { 
-          _id: `ai-bot-${selectedModel}`, 
-          username: `AI Bot (${selectedModel})` 
+        user: {
+          _id: `ai-bot-${selectedModel}`,
+          username: `AI Bot (${selectedModel})`,
         },
         createdAt: new Date().toISOString(),
       };
       setMessages(prev => [...prev, thinkingMessage]);
       socket.emit("getAiResponse", { prompt, model: selectedModel, tempId });
     } else {
+      // Normal user message
+      await createMessage(text);
       // const newMessage = {
-      //   _id: `temp-${Date.now()}`,
       //   text,
-      //   user: {
-      //     _id: current_user?.id,
-      //     username: current_user?.username,
-      //   },
-      //   createdAt: new Date().toISOString(),
-      // };
-      const newMessage = { text, userId: current_user?._id };
-      socket.emit("createMessage", newMessage);
-    }
-    setText("");
-  };
+      //   userId: current_user._id, // must match backend
+      };
+      // socket.emit("newMessage", newMessage);
+      setText("");
+    };
+
 
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      handleSend();
-    }
+    if (e.key === "Enter") handleSend();
   };
 
   return (
     <div className="message-input-container">
-      <input 
+      <input
         className="message-input"
-        value={text} 
-        onChange={e => setText(e.target.value)} 
+        value={text}
+        onChange={(e) => setText(e.target.value)}
         onKeyPress={handleKeyPress}
         placeholder="Type a message..."
       />
-      <button className="send-button" onClick={handleSend}>Send</button>
+      <button className="send-button" onClick={handleSend}>
+        Send
+      </button>
     </div>
   );
 };

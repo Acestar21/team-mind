@@ -2,7 +2,7 @@
 import '../index.css';
 import { useState } from "react";
 interface User {
-  _id: string;
+  id: string;
   username: string;
   email: string;
 }
@@ -27,7 +27,7 @@ const MessageItem = ({ message , current_user , onDelete, onUpdate}: MessageItem
   const [isEditing, setIsEditing] = useState(false);
 
   const [editText, setEditText] = useState(message.text);
-  const isCurrentUser = current_user?._id === message.user?._id;
+  const isCurrentUser = current_user?.id === message.user?._id;
   const handleSave = () => {
 
     onUpdate(message._id, editText);

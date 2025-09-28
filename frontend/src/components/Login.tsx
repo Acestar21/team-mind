@@ -4,12 +4,12 @@ import { loginUser } from "../services/api";
 type LoginProps = {
   onLoginSuccess: () => void;
   onShowRegister: () => void;
-}
-export default function Login({onLoginSuccess, onShowRegister}: LoginProps) {
+};
+
+export default function Login({ onLoginSuccess, onShowRegister }: LoginProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,7 +23,9 @@ export default function Login({onLoginSuccess, onShowRegister}: LoginProps) {
 
     localStorage.setItem("token", data.token);
 
+    // Save the full user object (with _id, username, email)
     localStorage.setItem("user", JSON.stringify(data.user));
+
     onLoginSuccess();
   };
 
@@ -50,8 +52,8 @@ export default function Login({onLoginSuccess, onShowRegister}: LoginProps) {
 
       {error && <p style={{ color: "red" }}>{error}</p>}
       <p>
-        Don't have an account?{' '}
-        <button onClick={onShowRegister} style={{ border: 'none', background: 'none', color: 'blue', cursor: 'pointer', padding: 0 }}>
+        Don't have an account?{" "}
+        <button onClick={onShowRegister} style={{ border: "none", background: "none", color: "blue", cursor: "pointer", padding: 0 }}>
           Register
         </button>
       </p>
