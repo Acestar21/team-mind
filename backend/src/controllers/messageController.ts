@@ -47,7 +47,7 @@ export const deleteMessages = async (req: Request, res: Response) => {
         }
 
         await deleteMessages.deleteOne();
-        io.emit("deleteMessage", id);
+        io.emit("messageDeleted", {_id : id});
         res.status(200).json({ message: "Message deleted successfully" });
 
     }
@@ -76,7 +76,7 @@ export const updateMessage = async (req: Request, res: Response) => {
         await msg.save();
         const populatedMessage = await msg.populate("user", "username email");
         
-        io.emit("updateMessage", populatedMessage);
+        io.emit("messageUpdate", populatedMessage);
         res.status(200).json(populatedMessage);
 
     } 

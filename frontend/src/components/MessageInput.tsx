@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { socket } from "../socket";
 
 interface User { 
-  id: string;
+  _id: string;
   username: string;
   email: string;
 }
@@ -34,7 +34,16 @@ const MessageInput = ({ setMessages, selectedModel, current_user }: Props) => {
       setMessages(prev => [...prev, thinkingMessage]);
       socket.emit("getAiResponse", { prompt, model: selectedModel, tempId });
     } else {
-      const newMessage = { text, userId: current_user?.id };
+      // const newMessage = {
+      //   _id: `temp-${Date.now()}`,
+      //   text,
+      //   user: {
+      //     _id: current_user?.id,
+      //     username: current_user?.username,
+      //   },
+      //   createdAt: new Date().toISOString(),
+      // };
+      const newMessage = { text, userId: current_user?._id };
       socket.emit("createMessage", newMessage);
     }
     setText("");

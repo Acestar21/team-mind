@@ -6,7 +6,7 @@ import MessageInput from './MessageInput';
 import ModelSelector from './ModelSelector';
 
 interface User { 
-  id: string;
+  _id: string;
   username: string;
   email: string;
 }
